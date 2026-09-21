@@ -5,7 +5,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
-    <x nav />
+    <x-nav />
     <main>@yield('content')</main>
 </body>
 </html>
