@@ -10,7 +10,7 @@
             Kasir
         </a>
         <a 
-            href="{{ route('transactions.index') }}" 
+            href="{{ route('transaction.index') }}" 
             class="px-3 py-2 rounded hover:bg-slate-700
             {{ request() -> routeIs('transaction.index') ? 'bg-slate-700' : ''}}">
             Transaksi
