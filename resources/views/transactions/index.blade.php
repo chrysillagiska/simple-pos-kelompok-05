@@ -13,6 +13,9 @@
                 &middot; Rp {{ number_format($transaction->total) }}
                 &middot; Kasir: {{ $transaction->user->name}}
             </p>
+            <p class="text-sm font-medium mt-1">
+                Total Item: {{ $transaction->details->sum('qty') }}
+            </p>
             <ul class="text-sm text-slate-500 mt-1">
                 @foreach ($transaction->details as $detail)
                     <li>{{ $detail->product->name }} &times; {{ $detail->qty }} = Rp {{ number_format($detail->subtotal) }}</li>
