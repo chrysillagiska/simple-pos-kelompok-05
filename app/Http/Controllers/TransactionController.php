@@ -36,6 +36,8 @@ class TransactionController extends Controller
                     'qty' => $item['qty'],
                     'subtotal' => $subtotal,
                 ]);
+                // Memotong stok produk berdasarkan kuantitas yang dibeli
+                $product->decrement('stock', $item['qty']);
             }
             $transaction->update(['total' => $total]);
         });
