@@ -12,9 +12,12 @@ return Application::configure(basePath: dirname(__DIR__))->withRouting(
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'role' => \App\Http\Middleware\EnsureUserHasRole::class,
-
         ]);
+
+        $middleware->redirectUsersTo('/pos');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();
+
+    

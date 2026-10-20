@@ -13,22 +13,33 @@ Route::get('/', function () {
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'create'])->name('login');
     Route::post('/login', [LoginController::class, 'store']);
+
 });
+
+    Route::get('/info', function () {
+        if (Illuminate\Support\Facades\Auth::check()) {
+            return redirect()->route('pos.create');
+        }
+
+        return view('info');
+    })->name('info');
 
 Route::post('/logout', [LoginController::class, 'destroy'])
     ->middleware('auth')
     ->name('logout');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/pos', [TransactionController::class, 'create'])->name('pos.create');
-    Route::post('/pos', [TransactionController::class, 'store'])->name('transactions.store');
+    Route::get('/pos', [TransactionController::class, 'create'])
+        ->name('pos.create');
 
-    // Route Riwayat Transaksi: Boleh diakses oleh Admin dan Manager
+    Route::post('/pos', [TransactionController::class, 'store'])
+        ->name('transactions.store');
+
     Route::middleware('role:admin,manager')->group(function () {
-        Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
+        Route::get('/transactions', [TransactionController::class, 'index'])
+            ->name('transactions.index');
     });
 
-    // Route Produk & Kategori: Hanya boleh diakses oleh Admin
     Route::middleware('role:admin')->group(function () {
         Route::resource('categories', CategoryController::class)->except('show');
         Route::resource('products', ProductController::class)->except(['show', 'destroy']);
