@@ -57,3 +57,61 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Skenario Pengujian Manual Berdasarkan Role
+
+Pengujian ini dilakukan untuk memastikan setiap pengguna hanya dapat mengakses halaman sesuai dengan hak aksesnya.
+
+### 1. Role Admin
+
+**Tujuan:** Memastikan admin dapat mengakses halaman kasir, transaksi, produk, dan kategori.
+
+**Langkah pengujian:**
+1. Jalankan aplikasi Laravel dengan perintah `php artisan serve`.
+2. Buka `http://127.0.0.1:8000/login`.
+3. Login menggunakan email `admin@pos.test` dan kata sandi `password`.
+4. Buka halaman `/pos`.
+5. Buka halaman `/transactions`.
+6. Buka halaman `/products` dan `/categories`.
+
+**Hasil yang diharapkan:**
+- Admin berhasil login.
+- Halaman kasir, transaksi, produk, dan kategori dapat diakses.
+- Menu Produk dan Kategori tampil pada navigasi.
+
+### 2. Role Kasir
+
+**Tujuan:** Memastikan kasir dapat melakukan aktivitas kasir, tetapi tidak dapat mengakses halaman khusus admin.
+
+**Langkah pengujian:**
+1. Logout dari akun sebelumnya.
+2. Buka halaman `/login`.
+3. Login menggunakan email `kasir@pos.test` dan kata sandi `password`.
+4. Buka halaman `/pos`.
+5. Buka halaman `/transactions`.
+6. Coba akses halaman `/products` dan `/categories`.
+
+**Hasil yang diharapkan:**
+- Kasir berhasil login.
+- Halaman kasir dan transaksi dapat diakses.
+- Halaman produk dan kategori menampilkan respons `403 Forbidden`.
+- Menu Produk dan Kategori tidak tampil pada navigasi.
+
+### 3. Role Manager
+
+**Tujuan:** Memastikan manager dapat mengakses transaksi, tetapi tidak dapat mengakses halaman khusus admin.
+
+**Langkah pengujian:**
+1. Pastikan akun manager tersedia di database dan memiliki nilai `role` = `manager`.
+2. Logout dari akun sebelumnya.
+3. Login menggunakan akun manager yang telah disiapkan.
+4. Buka halaman `/pos`.
+5. Buka halaman `/transactions`.
+6. Coba akses halaman `/products` dan `/categories`.
+
+**Hasil yang diharapkan:**
+- Manager berhasil login.
+- Halaman kasir dan transaksi dapat diakses.
+- Halaman produk dan kategori menampilkan respons `403 Forbidden`.
+
+**Catatan:** Pengujian manager hanya dapat dilakukan jika role tersebut sudah didukung oleh konfigurasi middleware dan akun manager sudah tersedia di database.
