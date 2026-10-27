@@ -16,9 +16,7 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [LoginController::class, 'store']);
 });
 
-Route::post('/logout', [LoginController::class, 'destroy'])
-    ->middleware('auth')
-    ->name('logout');
+Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
 
 Route::middleware('auth')->group(function () {
     Route::get('/pos', [TransactionController::class, 'create'])->name('pos.create');
@@ -28,9 +26,8 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin')->group(function () {
         Route::resource('categories', CategoryController::class)->except('show');
         Route::resource('products', ProductController::class)->except(['show', 'destroy']);
-        Route::get('/reports', [ReportController::class, 'index'])
-            ->name('reports.index');
-        Route::get('/reports/export/csv', [ReportController::class, 'exportCsv'])
-            ->name('reports.export.csv');
+        Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports/export/csv', [ReportController::class, 'exportCsv'])->name('reports.export.csv');
+        Route::get('/reports/export/xlsx', [ReportController::class, 'exportExcel'])->name('reports.export.xlsx');
     });
 });
