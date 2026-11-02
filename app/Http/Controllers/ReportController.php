@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ImportError;
 use App\Models\Category;
 use App\Models\TransactionDetail;
 use App\Exports\SalesReportExport;
@@ -16,6 +17,7 @@ use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+
 
 class ReportController extends Controller
 {
@@ -129,9 +131,10 @@ class ReportController extends Controller
 
     public function importForm(): View
     {
-        return view('reports.import');
+        return view('reports.import', [
+            'importErrors' => ImportError::orderBy('row_number')->get(),
+        ]);
     }
-
     public function import(Request $request): RedirectResponse
         {
             $request->validate([
