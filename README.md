@@ -115,3 +115,27 @@ Pengujian ini dilakukan untuk memastikan setiap pengguna hanya dapat mengakses h
 - Halaman produk dan kategori menampilkan respons `403 Forbidden`.
 
 **Catatan:** Pengujian manager hanya dapat dilakukan jika role tersebut sudah didukung oleh konfigurasi middleware dan akun manager sudah tersedia di database.
+
+## Proses yang Layak Dipindahkan ke Queued Job
+
+### Pembuatan Laporan Penjualan PDF
+
+Proses lain pada aplikasi Simple POS yang layak dipindahkan ke queued job adalah pembuatan laporan penjualan dalam format PDF.
+
+Saat ini, pembuatan laporan PDF dilakukan secara langsung melalui method `exportPdf()` pada `ReportController`. Proses ini mengambil data transaksi, menghitung total penjualan, mengambil produk terlaris, kemudian menghasilkan file PDF.
+
+Jika jumlah transaksi dan data produk semakin banyak, proses pembuatan laporan dapat membutuhkan waktu lebih lama dan membuat pengguna harus menunggu.
+
+Oleh karena itu, proses pembuatan laporan PDF sebaiknya dipindahkan ke queued job agar dapat dijalankan di background.
+
+**Alasan penggunaan queued job:**
+1. Mengurangi waktu tunggu pengguna saat meminta laporan.
+2. Menghindari proses pembuatan PDF yang terlalu lama pada request utama.
+3. Membantu menjaga respons aplikasi tetap cepat.
+4. Memungkinkan server memproses permintaan laporan secara bertahap melalui antrean pekerjaan.
+
+Setelah laporan selesai dibuat, file PDF dapat disimpan dan pengguna dapat diberi notifikasi bahwa laporan sudah siap diunduh.
+
+Dengan demikian, queued job dapat meningkatkan responsivitas dan efisiensi aplikasi Simple POS, terutama ketika jumlah data transaksi semakin besar.
+
+**Catatan:** Proses ini merupakan usulan pengembangan dan belum diterapkan sebagai queued job.

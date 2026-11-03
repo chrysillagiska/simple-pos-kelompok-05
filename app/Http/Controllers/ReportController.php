@@ -18,7 +18,6 @@ use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-
 class ReportController extends Controller
 {
     public function index(Request $request): View
@@ -41,7 +40,6 @@ class ReportController extends Controller
     public function exportCsv(Request $request): StreamedResponse
     {
         [$from, $to] = $this->resolveDateRange($request);
-
         $categoryId = $this->selectedCategoryId($request);
 
         $query = $this->filteredQuery($from, $to, $categoryId);
@@ -49,12 +47,9 @@ class ReportController extends Controller
         return response()->streamDownload(function () use ($query, $categoryId) {
             $out = fopen('php://output', 'w');
 
-            // Header CSV
             fputcsv($out, ['ID', 'Tanggal', 'Kasir', 'Total']);
 
-            // Membaca transaksi secara bertahap
             foreach ($query->lazyById() as $transaction) {
-
                 if ($categoryId === null) {
                     $total = $transaction->total;
                 } else {
@@ -80,7 +75,6 @@ class ReportController extends Controller
     public function exportExcel(Request $request): BinaryFileResponse
     {
         [$from, $to] = $this->resolveDateRange($request);
-
         $categoryId = $this->selectedCategoryId($request);
 
         return Excel::download(
@@ -114,10 +108,28 @@ class ReportController extends Controller
             }
         }
 
+        // Mengambil 5 produk terlaris berdasarkan jumlah qty terjual
+        $produkTerlaris = TransactionDetail::query()
+            ->selectRaw('product_id, SUM(qty) as total_qty, SUM(subtotal) as total_penjualan')
+            ->whereHas('transaction', function (Builder $q) use ($from, $to) {
+                $q->whereBetween('created_at', [$from, $to]);
+            })
+            ->whereHas('product', function (Builder $q) use ($categoryId) {
+                $q->when($categoryId !== null, function (Builder $q) use ($categoryId) {
+                    $q->where('category_id', $categoryId);
+                });
+            })
+            ->with('product:id,name')
+            ->groupBy('product_id')
+            ->orderByDesc('total_qty')
+            ->limit(5)
+            ->get();
+
         $pdf = Pdf::loadView('reports.pdf', [
             'totalPenjualan' => $this->categoryTotal($from, $to, $categoryId),
             'jumlahTransaksi' => (clone $query)->count(),
             'transactions' => $transactions,
+            'produkTerlaris' => $produkTerlaris,
             'from' => $from->toDateString(),
             'to' => $to->toDateString(),
             'categoryId' => $categoryId,
@@ -135,39 +147,46 @@ class ReportController extends Controller
             'importErrors' => ImportError::orderBy('row_number')->get(),
         ]);
     }
+
     public function import(Request $request): RedirectResponse
-        {
-            $request->validate([
+    {
+        $request->validate([
             'csv' => ['required', 'file', 'mimes:csv,txt'],
-            ]);
+        ]);
 
-            $path = $request->file('csv')->store('imports');
+        $path = $request->file('csv')->store('imports');
 
-            ProcessProductImport::dispatch($path);
+        ProcessProductImport::dispatch($path);
 
-            return back()->with('success', 'Import sedang diproses di background.');
-        }
+        return back()->with('success', 'Import sedang diproses di background.');
+    }
 
     private function resolveDateRange(Request $request): array
     {
         $from = $request->date('from')?->startOfDay() ?? now()->startOfMonth();
         $to = $request->date('to')?->endOfDay() ?? now()->endOfDay();
+
         return [$from, $to];
     }
-    
+
     private function selectedCategoryId(Request $request): ?int
     {
         $validated = $request->validate([
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
         ]);
 
-        return isset($validated['category_id']) ? (int) $validated['category_id']: null;
+        return isset($validated['category_id'])
+            ? (int) $validated['category_id']
+            : null;
     }
 
     private function filteredQuery($from, $to, ?int $categoryId = null): Builder
     {
-        return Transaction::with('user')->whereBetween('created_at', [$from, $to])->when($categoryId !== null, function (Builder $query) use ($categoryId) {
-                $query->whereHas('details.product', function (Builder $productQuery) use ($categoryId) {$productQuery->where('category_id', $categoryId);
+        return Transaction::with('user')
+            ->whereBetween('created_at', [$from, $to])
+            ->when($categoryId !== null, function (Builder $query) use ($categoryId) {
+                $query->whereHas('details.product', function (Builder $productQuery) use ($categoryId) {
+                    $productQuery->where('category_id', $categoryId);
                 });
             });
     }
