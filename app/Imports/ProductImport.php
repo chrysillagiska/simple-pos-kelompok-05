@@ -3,15 +3,15 @@
 namespace App\Imports;
 
 use App\Models\Product;
+use Illuminate\Database\Eloquent\Model;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 
 class ProductImport implements ToModel, WithHeadingRow, WithChunkReading
 {
-    public function model(array $row)
+    public function model(array $row): Model|array|null
     {
-        // updateOrCreate mencegah data dobel (idempotent)
         return Product::updateOrCreate(
             ['name' => $row['name'], 'category_id' => $row['category_id']],
             ['price' => $row['price']]
