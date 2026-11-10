@@ -16,13 +16,15 @@ class AuthController extends Controller
         ]);
 
         if (! Auth::attempt($credentials)) {
-            return response()->json([
-                'message' => 'Kredensial tidak valid.'
-            ], 401);
+            return response()->json(['message' => 'Kredensial tidak valid.'], 401);
         }
 
         $user = Auth::user();
-        $token = $user->createToken('mobile-kasir')->plainTextToken;
+        $token = $user->createToken(
+            'mobile-kasir',
+            ['products:read', 'transactions:create', 'transactions:read'],
+            now()->addDay(),
+        )->plainTextToken;
 
         return response()->json(['token' => $token]);
     }
@@ -31,8 +33,6 @@ class AuthController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json([
-            'message' => 'Logout berhasil.'
-        ]);
+        return response()->json(['message' => 'Logout berhasil.']);
     }
 }
