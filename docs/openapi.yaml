@@ -4,6 +4,7 @@ info:
   title: Simple POS API
   version: 1.0.0
   description: Dokumentasi REST API untuk aplikasi Simple POS.
+  # Perbandingan Pengalaman: Postman lebih mudah digunakan karena memiliki tampilan visual untuk mengatur token dan data JSON. Sementara itu, cURL mengharuskan penulisan perintah secara manual sehingga lebih rawan salah ketik, tetapi lebih praktis untuk pengujian otomatis tanpa aplikasi tambahan.
   license:
     name: MIT
     url: https://opensource.org/license/mit/
