@@ -4,15 +4,15 @@ info:
   title: Simple POS API
   version: 1.0.0
   description: Dokumentasi REST API untuk aplikasi Simple POS.
-license:
-  name: Proprietary
-  url: https://opensource.org/license/mit/
+  license:
+    name: MIT
+    url: https://opensource.org/license/mit/
 servers:
   - url: http://127.0.0.1:8000
     description: Local development server
 
 paths:
-  /api/login:
+  /api/v1/login:
     post:
       summary: Login dan dapatkan token
       operationId: login
@@ -52,7 +52,7 @@ paths:
                   message:
                     type: string
 
-  /api/products:
+  /api/v1/products:
     get:
       summary: Ambil daftar produk
       operationId: getProducts
@@ -178,7 +178,7 @@ paths:
         '422':
           description: Parameter query tidak valid
 
-  /api/transactions:
+  /api/v1/transactions:
     post:
       summary: Buat transaksi baru
       operationId: createTransaction
